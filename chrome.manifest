@@ -1,0 +1,5 @@
+content geopki chrome/content/
+
+# overlays for firefox
+#overlay	chrome://browser/content/browser.xul chrome://geopki/content/statusbar.xul
+overlay	chrome://browser/content/browser.xul chrome://geopki/content/initialize.xul
