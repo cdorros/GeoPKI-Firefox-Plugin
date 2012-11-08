@@ -8,8 +8,8 @@ var Geopki = {
 	
 	// Updates the status of the current page 
 	updateStatus: function(win, is_forced){
-
-		Firebug.Console.log("Update Status Called");
+		console.log("updateStatus called");
+		alert("updateStatus Called");
 	},
 	
 	geopkiListener: {
@@ -28,18 +28,16 @@ var Geopki = {
        			}
  
   		}*/ 
-		console.log("A thing is happeneing Called"); // DEBUG MESSAGE
-		Firebug.Console.log("onSecurityChange Called"); // DEBUG MESSAGE
+		console.log("onSecurityChange called"); // DEBUG MESSAGE
+		alert("onSecurityChange Called");
 		Geopki.updateStatus(window,false);
-		//Firebug.Console.log("Geopki.updateStatus Called"); // DEBUG MESSAGE
-		
-
-	}
+		}
+	},
 	
 	initGeopki: function() {
-		Firebug.Console.log("initGeopki Called"); // DEBUG MESSAGE
-		getBrowser().addProgressListener(Geopki.geopkiListener, 
-		Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
+		console.log("initGeopki Called"); // DEBUG MESSAGE
+		alert("initGeopki Called");
+		getBrowser().addProgressListener(Geopki.geopkiListener, Components.interfaces.nsIWebProgress.NOTIFY_STATE_DOCUMENT);
 	}
 	
 }

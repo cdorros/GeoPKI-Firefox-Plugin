@@ -1,23 +1,20 @@
 <?xml version="1.0"?>
 
-<overlay id="geopki-init"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
->
-  <script type="application/x-javascript" src="geopki.js" />
-  <script type="text/javascript">
+<overlay id="geopki-init" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript" src="geopki.js" />
 
-alert("Hello World.  RU Ready 4 GEOPKI?!");
-console.log("A thing is happeneing Called"); // DEBUG MESSAGE
+	<script type="text/javascript">
+		alert("Hello World.  RU Ready 4 GEOPKI?!");
+		console.log("initialize.xul called"); // DEBUG MESSAGE
 
-	window.addEventListener('load',evtLoad,false);
-	
-	function evtLoad(evt){
-		Geopki.initGeopki();
-		console.log("A thing is happeneing Called"); // DEBUG MESSAGE
-		
-	}
+		window.addEventListener('load',evtLoad,false);
+			
+		function evtLoad(evt){
+			Geopki.initGeopki();
+			console.log("evtLoad called"); // DEBUG MESSAGE
+			alert("evtLoad called");
+		}
+	</script>
 
-  </script>
-<html:a href = "http://www.google.com" onClick = "console.log('foo')" >This is my texty text</html>
 </overlay>
 
