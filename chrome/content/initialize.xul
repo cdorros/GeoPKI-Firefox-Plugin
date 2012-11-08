@@ -4,15 +4,10 @@
 	<script type="application/x-javascript" src="geopki.js" />
 
 	<script type="text/javascript">
-		alert("Hello World.  RU Ready 4 GEOPKI?!");
-		console.log("initialize.xul called"); // DEBUG MESSAGE
-
 		window.addEventListener('load',evtLoad,false);
 			
 		function evtLoad(evt){
 			Geopki.initGeopki();
-			console.log("evtLoad called"); // DEBUG MESSAGE
-			alert("evtLoad called");
 		}
 	</script>
 
