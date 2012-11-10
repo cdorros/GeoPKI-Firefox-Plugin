@@ -22,7 +22,18 @@ var Geopki = {
 		
 		ti.cert = Geopki.getCertificate(ti.browser);
 		Geopki.printDebug("Certificate Common Name: " + ti.cert.commonName);
-		
+
+		// Print the SHA-1 Fingerprint of the Certificate object
+		var certFingerprint = ti.cert.sha1Fingerprint;
+		Geopki.printDebug("Certificate SHA1 Fingerprint: " + certFingerprint);
+
+	},
+
+	buildBase64DER: function(chars){
+    	var result = "";
+    	for (i=0; i < chars.length; i++)
+        	result += String.fromCharCode(chars[i]);
+    	return btoa(result);
 	},
 	
 	get_invalid_cert_SSLStatus: function(uri){
