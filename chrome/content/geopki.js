@@ -27,6 +27,22 @@ var Geopki = {
 		var certFingerprint = ti.cert.sha1Fingerprint;
 		Geopki.printDebug("Certificate SHA1 Fingerprint: " + certFingerprint);
 
+		// Make XHR to retrieve info from the GeoPKI server
+
+		// Obtain URL of the GeoPKI server from the extenstion properties
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+		var geoPKIServerUrl = prefs.getComplexValue("geopki.server-url", Components.interfaces.nsISupportsString).data;
+		Geopki.printDebug("GeoPKI Server: " + geoPKIServerUrl);
+
+		var req  = XMLHttpRequest();
+		//var url = "http://www.google.com";
+		req.open("GET", geoPKIServerUrl, true);
+		req.onreadystatechange = (function(evt) { 
+			var response = req.responseText;
+			Geopki.printDebug("AJAX Response: " + response);
+		}); 
+		req.send(null);
+
 	},
 
 	buildBase64DER: function(chars){
