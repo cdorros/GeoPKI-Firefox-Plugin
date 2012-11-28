@@ -2,7 +2,7 @@
 
 <overlay id="geopki-init" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script type="application/x-javascript" src="geopki.js" />
-	<script type="application/x-javascript" src="extras/sha256.js" />
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/sha1.js"></script>
 
 	<script type="text/javascript">
 		window.addEventListener('load',evtLoad,false);

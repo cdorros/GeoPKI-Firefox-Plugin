@@ -31,18 +31,26 @@ var Geopki = {
 
 		// Obtain URL of the GeoPKI server from the extenstion properties
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+		var lat = "123.1";
+		var lon = "123.1";
+		var alt = "123.1";
+
 		var geoPKIServerUrl = prefs.getComplexValue("geopki.server-url", Components.interfaces.nsISupportsString).data;
-		Geopki.printDebug("GeoPKI Server: " + geoPKIServerUrl);
+		geoPKIServerUrl = geoPKIServerUrl + "?lat=" + lat + "&lon=" +  lon + "&alt=" + alt; 
 
 		var req  = XMLHttpRequest();
 		//var url = "http://www.google.com";
 		req.open("GET", geoPKIServerUrl, true);
 		req.onreadystatechange = (function(evt) { 
 			var response = req.responseText;
-			Geopki.printDebug("AJAX Response: " + response);
+		
+			// call the validation method
+			if (response){
+				var isValid = Geopki.validateNode(response, certFingerprint);
+				Geopki.printDebug("Certificate valid?: " + isValid);	
+			}
 		}); 
 		req.send(null);
-
 	},
 
 	buildBase64DER: function(chars){
@@ -154,6 +162,39 @@ var Geopki = {
 			console.log("GeoPKI: "+ message);
 		}
 		catch(e){}
-	}
+	},
 
+	// Method that validates if a node is legitimate given the array response returned by the server
+	// params:
+	// GeoPKIResponse -> array with intermediate and root hashes, returned by the GeoPKI server
+	// certFingerprint -> fingerprint of the certificate that we want to validate
+	validateNode: function(GeoPKIResponse, certFingerprint)
+	{
+		// initial hash is the hash of the certificate that we are trying to validate
+		var hash = certFingerprint.replace(/:/g,'').toLowerCase();
+		var leftHash;
+		var rightHash;
+		var rootHash;
+		var isValid = false;
+
+		var GeoPKIResponse = JSON.parse(GeoPKIResponse);
+		for (var i = 0; i < GeoPKIResponse.length; i+=2){
+			if(GeoPKIResponse[i+1] == 'rchild'){
+				leftHash = hash;
+				rightHash = GeoPKIResponse[i];
+				hash = CryptoJS.SHA1(leftHash + rightHash);
+			} else if (GeoPKIResponse[i+1] == 'lchild'){
+				leftHash = GeoPKIResponse[i];
+				rightHash = hash;
+				hash = CryptoJS.SHA1(leftHash + rightHash);
+			} else if (GeoPKIResponse[i+1] == 'root'){
+				rootHash = GeoPKIResponse[i]; 
+			}
+		}
+
+		if (rootHash == hash) {
+			isValid = true;
+		} 
+		return isValid;
+	}
 }
