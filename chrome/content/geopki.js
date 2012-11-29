@@ -4,7 +4,80 @@
 *   This is beerware.  If you like it, get us a beer :-)
 */
 
+
+
+//Get user permission to use geolocation
+function prompt(window, pref, message, callback) {
+    let branch = Components.classes["@mozilla.org/preferences-service;1"]
+                           .getService(Components.interfaces.nsIPrefBranch);
+ 
+    if (branch.getPrefType(pref) === branch.PREF_STRING) {
+        switch (branch.getCharPref(pref)) {
+        case "always":
+            return callback(true);
+        case "never":
+            return callback(false);
+        }
+    }
+ 
+    let done = false;
+ 
+    function remember(value, result) {
+        return function() {
+            done = true;
+            branch.setCharPref(pref, value);
+            callback(result);
+        }
+    }
+ 
+    let self = window.PopupNotifications.show(
+        window.gBrowser.selectedBrowser,
+        "geolocation",
+        message,
+        "geo-notification-icon",
+        {
+            label: "Share Location",
+            accessKey: "S",
+            callback: function(notification) {
+                done = true;
+                callback(true);
+            }
+        }, [
+            {
+                label: "Always Share",
+                accessKey: "A",
+                callback: remember("always", true)
+            },
+            {
+                label: "Never Share",
+                accessKey: "N",
+                callback: remember("never", false)
+            }
+        ], {
+            eventCallback: function(event) {
+                if (event === "dismissed") {
+                    if (!done) callback(false);
+                    done = true;
+                    window.PopupNotifications.remove(self);
+                }
+            },
+            persistWhileVisible: true
+        });
+}
+/*
+prompt(window,
+       "extensions.foo-addon.allowGeolocation",
+       "Foo Add-on wants to know your location.",
+       function callback(allowed) { alert(allowed); });
+
+//get geolocation
+var geolocation = Components.classes["@mozilla.org/geolocation;1"]
+	                            .getService(Components.interfaces.nsIDOMGeoGeolocation);
+*/
+//End permissions
+
 var Geopki = {
+	
 	
 	// Updates the status of the current page 
 	updateStatus: function(win, is_forced){
@@ -31,26 +104,50 @@ var Geopki = {
 
 		// Obtain URL of the GeoPKI server from the extenstion properties
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
-		var lat = "123.1";
-		var lon = "123.1";
-		var alt = "123.1";
-
-		var geoPKIServerUrl = prefs.getComplexValue("geopki.server-url", Components.interfaces.nsISupportsString).data;
-		geoPKIServerUrl = geoPKIServerUrl + "?lat=" + lat + "&lon=" +  lon + "&alt=" + alt; 
-
-		var req  = XMLHttpRequest();
-		//var url = "http://www.google.com";
-		req.open("GET", geoPKIServerUrl, true);
-		req.onreadystatechange = (function(evt) { 
-			var response = req.responseText;
+	
+		//Get geolocation data.
+		Geopki.printDebug("Calling Prompt.");
+		prompt(window,
+		       "extensions.geopki.allowGeolocation",
+		       "GeoPKI needs to know your location to help assure your connection is secure.",
+		       function callback(allowed) { alert(allowed); });
+		Geopki.printDebug("Calling GeoLocation");
+		//Get actual location here!
+		if("geolocation" in navigator) {
+			Geopki.printDebug("geolocation is in navigator.");
+			//get geolocation
+			var geolocation = Components.classes["@mozilla.org/geolocation;1"]
+			                            .getService(Components.interfaces.nsIDOMGeoGeolocation);
+			
+		  /*navigator.*/geolocation.getCurrentPosition(function(position) {
+		    Geopki.printDebug("Coordinates:" + position.coords.latitude + " / " + position.coords.longitude);
+		  	Geopki.printDebug("Altitude: " + position.coords.altitude);
 		
-			// call the validation method
-			if (response){
-				var isValid = Geopki.validateNode(response, certFingerprint);
-				Geopki.printDebug("Certificate valid?: " + isValid);	
-			}
-		}); 
-		req.send(null);
+			var lat = position.coords.latitude;
+			var lon = position.coords.longitude;
+			var alt = position.coords.altitude;
+			Geopki.printDebug("Geo Variables Assigned.");
+
+			var geoPKIServerUrl = prefs.getComplexValue("geopki.server-url", Components.interfaces.nsISupportsString).data;
+			geoPKIServerUrl = geoPKIServerUrl + "?lat=" + lat + "&lon=" +  lon + "&alt=" + alt; 
+
+			var req  = XMLHttpRequest();
+			//var url = "http://www.google.com";
+			req.open("GET", geoPKIServerUrl, true);
+			req.onreadystatechange = (function(evt) { 
+				var response = req.responseText;
+				Geopki.printDebug("Calling Validation Method");
+				// call the validation method
+				if (response){
+					var isValid = Geopki.validateNode(response, certFingerprint);
+					Geopki.printDebug("Certificate valid?: " + isValid);	
+				}
+			}); 
+		
+			req.send(null);
+		
+		}); //Close geolocation.getCurrentPosition(function(position)
+	  } 
 	},
 
 	buildBase64DER: function(chars){
