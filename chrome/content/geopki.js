@@ -64,17 +64,6 @@ function prompt(window, pref, message, callback) {
             persistWhileVisible: true
         });
 }
-/*
-prompt(window,
-       "extensions.foo-addon.allowGeolocation",
-       "Foo Add-on wants to know your location.",
-       function callback(allowed) { alert(allowed); });
-
-//get geolocation
-var geolocation = Components.classes["@mozilla.org/geolocation;1"]
-	                            .getService(Components.interfaces.nsIDOMGeoGeolocation);
-*/
-//End permissions
 
 var Geopki = {
 	
@@ -110,7 +99,7 @@ var Geopki = {
 		prompt(window,
 		       "extensions.geopki.allowGeolocation",
 		       "GeoPKI needs to know your location to help assure your connection is secure.",
-		       function callback(allowed) { alert(allowed); });
+		       function callback(allowed) { /*alert(allowed);*/ });
 		Geopki.printDebug("Calling GeoLocation");
 		//Get actual location here!
 		if("geolocation" in navigator) {
