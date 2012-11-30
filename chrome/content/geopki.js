@@ -9,7 +9,7 @@ var Geopki = {
 	// Updates the status of the current page 
 	updateStatus: function(win, is_forced){
 		Geopki.printDebug("updateStatus called");
-		
+
 		var ti = Geopki.getCurrentTabInfo(win);
 		
 		/*if(ti.uri.scheme != "https"){
@@ -20,6 +20,8 @@ var Geopki = {
 			return;
 		}*/
 		
+		Geopki_statusbar.setStatus(ti.uri,Geopki_statusbar.STATE_NEUT, null); 
+
 		ti.cert = Geopki.getCertificate(ti.browser);
 		Geopki.printDebug("Certificate Common Name: " + ti.cert.commonName);
 
@@ -43,11 +45,21 @@ var Geopki = {
 		req.open("GET", geoPKIServerUrl, true);
 		req.onreadystatechange = (function(evt) { 
 			var response = req.responseText;
+			Geopki.printDebug("Response: " + response);
+			Geopki.printDebug("Response status: " + req.status);
 		
-			// call the validation method
-			if (response){
+			// call the validation method if the response was successfull
+			if (response && req.status == "200"){
 				var isValid = Geopki.validateNode(response, certFingerprint);
+				if (isValid) {
+				Geopki_statusbar.setStatus(ti.uri,Geopki_statusbar.STATE_SEC, "GeoPKI: Secure"); 
+				} else {
+					Geopki_statusbar.setStatus(ti.uri,Geopki_statusbar.STATE_NSEC, "GeoPKI: Not Secure"); 
+				}
 				Geopki.printDebug("Certificate valid?: " + isValid);	
+			  // display an error in the toolbar if the server was not reachable	
+			} else if (req.status == "404") {
+				Geopki_statusbar.setStatus(ti.uri,Geopki_statusbar.STATE_ERROR, "GeoPKI: Error"); 
 			}
 		}); 
 		req.send(null);

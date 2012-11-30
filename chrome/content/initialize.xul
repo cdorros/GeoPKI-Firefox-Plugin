@@ -9,7 +9,84 @@
 			
 		function evtLoad(evt){
 			Geopki.initGeopki();
+
+          	var bname = "geopki-status-button";
+
+	        if (!document.getElementById(bname)) {
+	          // user has just installed the extension and has no button. add one
+	          addToolbarButton("nav-bar", bname, "urlbar-container");
+	        }
+	        // else the user has already added the button previously
+	        // we don't want to touch it
+	    }
+
+	    function addToolbarButton(toolbarId, buttonId, beforeId) {
+	        if(!buttonId) {
+	        	Geopki.printDebug("Could not add Perspectives button to toolbar: " + buttonId + " doesn't exist\n");
+	        	return;
+	        }
+
+	        if(!toolbarId) {
+	        	Geopki.printDebug("Could not add Perspectives button to toolbar: " + toolbarId + " doesn't exist\n");
+	 			return;
+	        }
+	        var toolbar = document.getElementById(toolbarId);
+	        if (toolbar) {
+	            if (toolbar.firstChild) {
+	                var before = toolbar.firstChild;
+	                if (beforeId) {
+	                    var elem = document.getElementById(beforeId);
+	                    if (elem) {
+	                        if (elem.parentNode) {
+	                            if (elem.parentNode == toolbar) {
+	                                before = elem;
+	                            }
+	                            else {
+	                            	Geopki.printDebug("Parent node of " + beforeId + " is not " + toolbarId);
+	                            }
+	                        }
+	                        else {
+	                        	Geopki.printDebug("Could not get parent node for " + beforeId);
+	        
+	                        }
+	                    }
+	                    else {
+	                    	Geopki.printDebug("Could not get element " + beforeId + "\n");
+	                        
+	                    }
+	                }
+	                else {
+	                	Geopki.printDebug("" + beforeId + " doesn't exist.\n");
+	                 
+	                }
+
+	                try{
+	                  toolbar.insertItem(buttonId, before);
+	                }
+	                catch(e) {
+	                	Geopki.printDebug("Could not add Perspectives button to toolbar:" + e + "\n");
+	              
+	                }
+
+	                toolbar.setAttribute("currentset", toolbar.currentSet);
+	                document.persist(toolbar.id, "currentset");
+
+	                if (toolbarId == "addon-bar")  {
+	                    toolbar.collapsed = false;
+	                }
+	            }
+	            else {
+	                Geopki.printDebug("Could not add Perspectives button to toolbar: " + ToolbarId + " has no child node\n");
+
+	              
+	            }
+	        }
+	        else {
+	        	Geopki.printDebug("Could not add Perspectives button to toolbar: " + toolbarId + " doesn't exist\n");
+	          
+	        }
 		}
+
 	</script>
 
 </overlay>
